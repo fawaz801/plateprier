@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>License Plate Pricer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #333232;
+        }
+        .card {
+            background-color: #1a1a1a;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(224, 63, 224, 0.3);
+            width: 300px;
+        }
+        h1 {
+            text-align: center;
+            color: #b19cd9;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label {
+            margin-top: 1rem;
+            margin-bottom: 0.5rem;
+            color: #b19cd9;
+        }
+        select, input, button {
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #b19cd9;
+            border-radius: 4px;
+            background-color: #2a2a2a;
+            color: #b19cd9;
+        }
+        button {
+            background-color: #800080;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #9932cc;
+        }
+        #expectedPrice {
+            font-size: 1.2rem;
+            font-weight: bold;
+            text-align: center;
+            margin-top: 1rem;
+            color: #b19cd9;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Car Plate Pricing</h1>
+        <form id="plateForm">
+            <label for="city">City:</label>
+            <select id="city" name="city" required>
+                <option value="dubai">Dubai</option>
+            </select>
+
+            <label for="letters">Letters:</label>
+            <select id="letters" name="letters" required>
+                <option value="a">A</option>
+                <option value="b">B</option>
+                <option value="c">C</option>
+                <option value="d">D</option>
+                <option value="e">E</option>
+                <option value="f">F</option>
+                <option value="g">G</option>
+                <option value="h">H</option>
+                <option value="i">I</option>
+                <option value="j">J</option>
+                <option value="k">K</option>
+                <option value="l">L</option>
+                <option value="m">M</option>
+                <option value="n">N</option>
+                <option value="o">O</option>
+                <option value="p">P</option>
+                <option value="q">Q</option>
+                <option value="r">R</option>
+                <option value="s">S</option>
+                <option value="t">T</option>
+                <option value="u">U</option>
+                <option value="v">V</option>
+                <option value="w">W</option>
+                <option value="x">X</option>
+                <option value="y">Y</option>
+                <option value="z">Z</option>
+                <option value="AA">AA</option>
+                <option value="BB">BB</option>
+                <option value="CC">CC</option>
+            </select>
+
+            <label for="numbers">Numbers (max 5 digits):</label>
+            <input type="text" id="numbers" name="numbers" maxlength="5" pattern="[0-9]*" inputmode="numeric" required>
+
+            <button type="button" onclick="calculatePrice()">Get Price</button>
+        </form>
+        <div id="expectedPrice"></div>
+    </div>
+
+    <script>
+        async function calculatePrice() {
+            const letters = document.getElementById('letters').value;
+            const numbers = document.getElementById('numbers').value;
+
+            if (!numbers) {
+                alert('Please enter a number.');
+                return;
+            }
+
+            const letterParam = letters === "" ? "no-letter" : letters; 
+
+            const url = `http://localhost:4001/api/plates/${letterParam}/${numbers}`;
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error('No similar plates found');
+                }
+
+                const data = await response.json();
+                document.getElementById('expectedPrice').innerHTML = `
+                    <p><strong>Estimated Price:</strong> ${data.estimatedPrice} AED</p>
+                    <p><strong>Similar Plates:</strong></p>
+                    <ul>${data.similarPlates.map(plate => `
+                        <li>${plate.character}${plate.number}: ${plate.price} AED</li>
+                    `).join('')}</ul>
+                `;
+            } catch (error) {
+                alert('An error occurred: ' + error.message);
+            }
+        }
+    </script>
+</body>
+</html>
+
